@@ -18,12 +18,13 @@ console = Console()
 
 class Download:
     '''main Download class that handles downloading and merging the files'''
-    WRITE_CHUNK_SIZE = 1000 * 1000 * 2
+    WRITE_CHUNK_SIZE = 1000 * 1000 * 10
     TEMP_FILES = r"temp/"
     try:
         os.mkdir(TEMP_FILES)
     except FileExistsError:
         pass
+
     def __init__(self, url, name, **kwargs) -> None:
         self.url = url
         self.name = name
@@ -68,7 +69,8 @@ class Download:
         result.append((part+1, part+size))
         return result
     
-    def worker(self, id: str) -> None: # downloads and write chunk into temp file
+    def worker(self, id: str) -> None: 
+        ''' downloads and write chunk into temp file '''
         headers = {'Range': f'bytes={self.ranges[id][0]}-{self.ranges[id][1]}'}
         while True:
             try:
@@ -85,10 +87,9 @@ class Download:
                 return
             except requests.ConnectTimeout:
                 time.sleep(5)
-            #except:
-            #    return
     
     def cleanup(self):
+        '''join the temp files and remove them'''
         self.progress.update(self.task, description=f"Joining {self.name}")
         with open(self.name, 'wb') as f:
             for part in self.ranges:
@@ -99,19 +100,16 @@ class Download:
 
     
     def start(self):
+        '''download starts here as well as terminal output managment'''
         if not self.is_downloadable:
             return 
         self.start_time = time.time()
-        #columns = (*Progress.get_default_columns(), DownloadColumn(), TransferSpeedColumn())
-        #with root_p as self.progress:
         self.progress.start()
         self.task = self.progress.add_task(f"[red]Downloading {self.name}", total=self.size)
         with ThreadPoolExecutor(max_workers=6) as self.exc:
             self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
             for _ in as_completed(self.workers):
                 pass
-        #with console.status("Joining Files"):
         self.cleanup()
-        #console.print("Done!")
-        if all(task.finished for task in self.progress.tasks): # chekc to see if any taks left
+        if all(task.finished for task in self.progress.tasks): # chekc to see if any taks left undone
             self.progress.stop()
