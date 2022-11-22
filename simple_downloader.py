@@ -1,5 +1,6 @@
 import random
 import urllib.request
+import rich
 
 extent = input("What is your file type ?\n")
 
