@@ -1,5 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-#from console import progress, tasks
+from concurrent.futures import ThreadPoolExecutor , as_completed
+from console_manager import root_p, console
 from rich.progress import DownloadColumn, Progress, TransferSpeedColumn
 from rich.console import Console
 import requests
@@ -20,7 +20,10 @@ class Download:
     '''main Download class that handles downloading and merging the files'''
     WRITE_CHUNK_SIZE = 1000 * 1000 * 2
     TEMP_FILES = r"temp/"
-    os.mkdir(TEMP_FILES)
+    try:
+        os.mkdir(TEMP_FILES)
+    except FileExistsError:
+        pass
     def __init__(self, url, name, **kwargs) -> None:
         self.url = url
         self.name = name
@@ -83,6 +86,7 @@ class Download:
             #    return
     
     def cleanup(self):
+        self.progress.update(self.task, dict="joining")
         with open(self.name, 'wb') as f:
             for part in self.ranges:
                 with open(Download.TEMP_FILES+part, 'rb') as file:
@@ -92,13 +96,13 @@ class Download:
     
     def start(self):
         self.start_time = time.time()
-        columns = (*Progress.get_default_columns(), DownloadColumn(), TransferSpeedColumn())
-        with Progress(*columns ,console=console, auto_refresh=True) as self.progress:
-            self.task = self.progress.add_task("[red]Downloading...", total=self.size)
+        #columns = (*Progress.get_default_columns(), DownloadColumn(), TransferSpeedColumn())
+        with root_p as self.progress:
+            self.task = self.progress.add_task(f"[red]Downloading {self.name}", total=self.size)
             with ThreadPoolExecutor(max_workers=6) as self.exc:
                 self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
                 for _ in as_completed(self.workers):
                     pass
-        with console.status("Joining Files"):
+            #with console.status("Joining Files"):
             self.cleanup()
-        console.print("Done!")
+            #console.print("Done!")
