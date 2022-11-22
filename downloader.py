@@ -29,8 +29,11 @@ class Download:
         self.name = name
         self.config = kwargs
         self.ranges = dict()
-        self.is_downloadable = self.initial_check()  # main programm checks this before calling start()
-
+        self.progress = root_p
+        try:
+            self.is_downloadable = self.initial_check()  # main programm checks this before calling start()
+        except requests.exceptions.ConnectionError:
+            pass
 
     def initial_check(self):
         '''Checks for downloadabilty of file and also sets up some initial data like size and parts'''
@@ -47,10 +50,10 @@ class Download:
             return True
             
         except requests.exceptions.ConnectionError:
-            print('Connection Error')
+            print(f'Connection Error {self.name}')
             return False
         except:
-            print('Unknown Error')
+            print(f'Unknown Error {self.name}')
             return False
 
     def chunkify(self, size, parts=6) -> list:
@@ -86,23 +89,29 @@ class Download:
             #    return
     
     def cleanup(self):
-        self.progress.update(self.task, dict="joining")
+        self.progress.update(self.task, description=f"Joining {self.name}")
         with open(self.name, 'wb') as f:
             for part in self.ranges:
                 with open(Download.TEMP_FILES+part, 'rb') as file:
                     f.write(file.read())
                 os.remove(f'{Download.TEMP_FILES+part}')
+        self.progress.update(self.task, description=f"Done {self.name}")
 
     
     def start(self):
+        if not self.is_downloadable:
+            return 
         self.start_time = time.time()
         #columns = (*Progress.get_default_columns(), DownloadColumn(), TransferSpeedColumn())
-        with root_p as self.progress:
-            self.task = self.progress.add_task(f"[red]Downloading {self.name}", total=self.size)
-            with ThreadPoolExecutor(max_workers=6) as self.exc:
-                self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
-                for _ in as_completed(self.workers):
-                    pass
-            #with console.status("Joining Files"):
-            self.cleanup()
-            #console.print("Done!")
+        #with root_p as self.progress:
+        self.progress.start()
+        self.task = self.progress.add_task(f"[red]Downloading {self.name}", total=self.size)
+        with ThreadPoolExecutor(max_workers=6) as self.exc:
+            self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
+            for _ in as_completed(self.workers):
+                pass
+        #with console.status("Joining Files"):
+        self.cleanup()
+        #console.print("Done!")
+        if all(task.finished for task in self.progress.tasks): # chekc to see if any taks left
+            self.progress.stop()

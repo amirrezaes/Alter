@@ -10,12 +10,15 @@ import threading
 
 
 b = downloader.Download(sys.argv[1], sys.argv[2])
-#c = downloader.Download("https://cdimage.kali.org/kali-2022.1/kali-linux-2022.1-installer-arm64.iso", "Kali.iso")
+c = downloader.Download("http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/mini.iso", "mini.iso")
 a = downloader.Download("https://speed.hetzner.de/1GB.bin", "1_1GB.bin")
 t1 = threading.Thread(target=b.start)
 t2 = threading.Thread(target=a.start)
+t3 = threading.Thread(target=c.start)
 t1.start()
 t2.start()
+t3.start()
 t1.join()
 t2.join()
+t3.join()
 #b.start()
