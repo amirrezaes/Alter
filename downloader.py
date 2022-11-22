@@ -1,5 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from console import progress, tasks
+#from console import progress, tasks
+from rich.progress import DownloadColumn, Progress, TransferSpeedColumn
+from rich.console import Console
 import requests
 import time
 import os
@@ -12,9 +14,13 @@ TODO:
     > Consider connection count limit
 '''
 
+console = Console()
+
 class Download:
     '''main Download class that handles downloading and merging the files'''
     WRITE_CHUNK_SIZE = 1000 * 1000 * 2
+    TEMP_FILES = r"temp/"
+    os.mkdir(TEMP_FILES)
     def __init__(self, url, name, **kwargs) -> None:
         self.url = url
         self.name = name
@@ -44,7 +50,7 @@ class Download:
             print('Unknown Error')
             return False
 
-    def chunkify(self, size, parts=6) -> list[tuple[int, int]]:
+    def chunkify(self, size, parts=6) -> list:
         '''divides a range into n sub ranges'''
         chunk = size // (self.config.get('threads') or parts)
         part = -1
@@ -65,10 +71,11 @@ class Download:
                     raise requests.ConnectTimeout
                 if int(chunk.headers['Content-Length']) != (self.ranges[id][1] - self.ranges[id][0])+1:
                     raise Exception
-                with open(id, 'wb') as file:
+                with open(Download.TEMP_FILES+id, 'wb') as file:
                     for content in chunk.iter_content(Download.WRITE_CHUNK_SIZE):
-                        file.write(content)
-                        tasks[self.task] += len(content)
+                        #file.write(content)
+                        #self.progress.update(self.task, advance=file.write(content))
+                        self.progress.advance(self.task, file.write(content))
                 return
             except requests.ConnectTimeout:
                 time.sleep(5)
@@ -78,24 +85,20 @@ class Download:
     def cleanup(self):
         with open(self.name, 'wb') as f:
             for part in self.ranges:
-                with open(part, 'rb') as file:
+                with open(Download.TEMP_FILES+part, 'rb') as file:
                     f.write(file.read())
-                os.remove(f'{part}')
+                os.remove(f'{Download.TEMP_FILES+part}')
 
     
     def start(self):
         self.start_time = time.time()
-        #columns = (*Progress.get_default_columns(), DownloadColumn(), TransferSpeedColumn())
-        #with Progress(*columns ,console=console, auto_refresh=5) as self.progress:
-        #   self.task1 = self.progress.add_task("[red]Downloading...", total=self.size)
-        self.task = progress.add_task(self.name, total=self.size)
-        tasks[self.task] = 0
-        with ThreadPoolExecutor(max_workers=6) as self.exc:
-            self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
-            #a = self.exc.map(self.worker, self.ranges)
-            for i in as_completed(self.workers):
-                pass
-        #with console.status("Joining Files"):
-        self.cleanup()
-        tasks.pop(self.task)
-        #console.print("Done!")
+        columns = (*Progress.get_default_columns(), DownloadColumn(), TransferSpeedColumn())
+        with Progress(*columns ,console=console, auto_refresh=True) as self.progress:
+            self.task = self.progress.add_task("[red]Downloading...", total=self.size)
+            with ThreadPoolExecutor(max_workers=6) as self.exc:
+                self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
+                for _ in as_completed(self.workers):
+                    pass
+        with console.status("Joining Files"):
+            self.cleanup()
+        console.print("Done!")

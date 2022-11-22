@@ -8,4 +8,3 @@ with Progress(*columns ,console=console, auto_refresh=5) as progress:
         for task in tasks:
             progress.update(task, advance=tasks[task])
             tasks[task] = 0
-
