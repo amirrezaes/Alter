@@ -1,7 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor , as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from console_manager import root_p, console
-from rich.progress import DownloadColumn, Progress, TransferSpeedColumn
-from rich.console import Console
 import requests
 import time
 import os
@@ -14,7 +12,6 @@ TODO:
     > Consider connection count limit
 '''
 
-console = Console()
 
 class Download:
     '''main Download class that handles downloading and merging the files'''
@@ -31,10 +28,6 @@ class Download:
         self.config = kwargs
         self.ranges = dict()
         self.progress = root_p
-        try:
-            self.is_downloadable = self.initial_check()  # main programm checks this before calling start()
-        except requests.exceptions.ConnectionError:
-            pass
 
     def initial_check(self):
         '''Checks for downloadabilty of file and also sets up some initial data like size and parts'''
@@ -44,17 +37,17 @@ class Download:
                 raise requests.exceptions.ConnectionError
             if "Content-Length" in req.headers:
                 self.size = int(req.headers['Content-Length'])
-                self.ranges = {uuid.uuid4().hex:chunk for chunk in self.chunkify(self.size)}
+                self.ranges = {uuid.uuid4().hex: chunk for chunk in self.chunkify(self.size)}
             else:
                 self.size = 0
                 self.ranges = [None]
             return True
-            
+
         except requests.exceptions.ConnectionError:
-            print(f'Connection Error {self.name}')
+            console.print(f'Connection Error {self.name}')
             return False
-        except:
-            print(f'Unknown Error {self.name}')
+        except Exception:
+            console.print(f'Unknown Error {self.name}')
             return False
 
     def chunkify(self, size, parts=6) -> list:
@@ -64,12 +57,12 @@ class Download:
         result = list()
         while size >= chunk:
             size -= chunk
-            result.append((part+1, part+chunk))
+            result.append((part + 1, part + chunk))
             part += chunk
-        result.append((part+1, part+size))
+        result.append((part + 1, part + size))
         return result
-    
-    def worker(self, id: str) -> None: 
+
+    def worker(self, id: str) -> None:
         ''' downloads and write chunk into temp file '''
         headers = {'Range': f'bytes={self.ranges[id][0]}-{self.ranges[id][1]}'}
         while True:
@@ -77,32 +70,30 @@ class Download:
                 chunk = requests.get(self.url, headers=headers, stream=True)
                 if(chunk.status_code not in range(200, 300)):
                     raise requests.ConnectTimeout
-                if int(chunk.headers['Content-Length']) != (self.ranges[id][1] - self.ranges[id][0])+1:
+                if int(chunk.headers['Content-Length']) != (self.ranges[id][1] - self.ranges[id][0]) + 1:
                     raise Exception
-                with open(Download.TEMP_FILES+id, 'wb') as file:
+                with open(Download.TEMP_FILES + id, 'wb') as file:
                     for content in chunk.iter_content(Download.WRITE_CHUNK_SIZE):
-                        #file.write(content)
-                        #self.progress.update(self.task, advance=file.write(content))
                         self.progress.advance(self.task, file.write(content))
                 return
             except requests.ConnectTimeout:
                 time.sleep(5)
-    
+
     def cleanup(self):
         '''join the temp files and remove them'''
         self.progress.update(self.task, description=f"Joining {self.name}")
         with open(self.name, 'wb') as f:
             for part in self.ranges:
-                with open(Download.TEMP_FILES+part, 'rb') as file:
+                with open(Download.TEMP_FILES + part, 'rb') as file:
                     f.write(file.read())
-                os.remove(f'{Download.TEMP_FILES+part}')
+                os.remove(f'{Download.TEMP_FILES + part}')
         self.progress.update(self.task, description=f"Done {self.name}")
 
-    
     def start(self):
         '''download starts here as well as terminal output managment'''
+        self.is_downloadable = self.initial_check()  # main programm checks this before calling start()
         if not self.is_downloadable:
-            return 
+            return
         self.start_time = time.time()
         self.progress.start()
         self.task = self.progress.add_task(f"[red]Downloading {self.name}", total=self.size)
@@ -111,5 +102,5 @@ class Download:
             for _ in as_completed(self.workers):
                 pass
         self.cleanup()
-        if all(task.finished for task in self.progress.tasks): # chekc to see if any taks left undone
+        if all(task.finished for task in self.progress.tasks):  # chekc to see if any taks left undone
             self.progress.stop()
