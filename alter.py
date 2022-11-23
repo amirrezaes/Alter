@@ -12,3 +12,9 @@ threads = []
 for task in itertools.zip_longest(args.url, args.output, fillvalue=None):
     task = downloader.Download(task[0], task[1])
     threads.append(threading.Thread(target=task.start))
+
+for thread in threads:
+    thread.start()
+
+for thread in threads:
+    thread.join()
