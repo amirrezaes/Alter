@@ -18,7 +18,11 @@ for task in itertools.zip_longest(args.url, args.output, fillvalue=None):
 
 for thread in threads:
     thread.start()
+for thread in threads:
+    thread.join()
 
+# This part will be implemented later on
+''''
 def hook():
     while RUNNING:
         choice = user_input("Select what you wanna do? ADD/STOP", console=root_p.console, choices=["A", "S"])
@@ -35,3 +39,4 @@ input_thread.start()
 while any(thread.is_alive for thread in threads):
     pass
 RUNNING = False
+'''
