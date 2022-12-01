@@ -1,6 +1,6 @@
 # Alter Download Manager
 
-** A terminal based download manager in Python **
+**A terminal based download manager in Python**
 
 ## Features:
 > 1-Multi-Part downloading to boost the speed.<br>
