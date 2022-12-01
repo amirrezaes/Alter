@@ -94,13 +94,16 @@ class Download:
         self.is_downloadable = self.initial_check()  # main programm checks this before calling start()
         if not self.is_downloadable:
             return
+
         self.start_time = time.time()
         self.progress.start()
         self.task = self.progress.add_task(f"[red]Downloading {self.name}", total=self.size)
+
         with ThreadPoolExecutor(max_workers=6) as self.exc:
             self.workers = {self.exc.submit(self.worker, r): r for r in self.ranges}
             for _ in as_completed(self.workers):
                 pass
+
         self.cleanup()
-        if all(task.finished for task in self.progress.tasks):  # chekc to see if any taks left undone
+        if self.progress.finished:  # chekc to see if any taks left undone
             self.progress.stop()
