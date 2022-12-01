@@ -3,9 +3,9 @@
 ** A terminal based download manager in Python **
 
 ## Features:
-> Multi-Part downloading to boost the speed.<br>
-> Concurrent downloading of multiple files.<br>
-> adorable UI created with Rich library<br>
+> 1-Multi-Part downloading to boost the speed.<br>
+> 2-Concurrent downloading of multiple files.<br>
+> 3-adorable UI created with Rich library<br>
 
 ## Requirements:
 > pip install -r requirements.txt <br>
@@ -18,9 +18,9 @@
 
 
 ## TODO:
-> A live menu to add/stop downloads while download process is going on <br>
-> Automatic name retrive for nameless file <br>
-> Download links from a file <br>
-> Web scrapper <br>
-> Torrent client ! aghhhhh <br>
+> 1-A live menu to add/stop downloads while download process is going on <br>
+> 2-Automatic name retrive for nameless file <br>
+> 3-Download links from a file <br>
+> 4-Web scrapper <br>
+> 5-Torrent client ! aghhhhh <br>
 > more ?
