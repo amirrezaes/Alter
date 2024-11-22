@@ -1,4 +1,4 @@
-```markdown
+
 # Alter Download Manager
 
 [![Python](https://img.shields.io/badge/Python-3.7%2B-blue.svg)](https://www.python.org/downloads/)
@@ -76,5 +76,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - [Rich](https://github.com/Textualize/rich) for the terminal interface
-
-```
