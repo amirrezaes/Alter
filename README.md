@@ -1,4 +1,4 @@
-![Logo](/img/Screenshot_25-11-2024_152225_looka.com)
+![Logo](/img/logo.png)
 # Alter Download Manager
 
 [![Python](https://img.shields.io/badge/Python-3.7%2B-blue.svg)](https://www.python.org/downloads/)
