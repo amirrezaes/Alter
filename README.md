@@ -1,4 +1,9 @@
-![Logo](/img/logo.png)
+<p align="center">
+  <img src="/img/logo.png" alt="Alter Logo" width="400">
+  <br>
+  <b>Alter: Modern terminal download manager.</b>
+</p>
+
 # Alter Download Manager
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
