@@ -10,7 +10,7 @@ A high-performance, terminal-based download manager written in Python that focus
 
 - **Multi-Part Downloading**: Accelerate downloads by splitting files into multiple parts
 - **Concurrent Downloads**: Download multiple files simultaneously
-- **Terminal UI**: Clean and intuitive interface powered by Rich library
+- **Terminal UI**: Live management interface powered by Textual
 - **Resource Efficient**: Optimized for minimal system resource usage
 
 ## Installation
@@ -26,16 +26,26 @@ cd alter
 pip install -r requirements.txt
 ```
 
+Or install the package locally:
+```bash
+pip install -e .
+```
+
 ## Usage
 
 ### Basic Download
 ```bash
-python3 alter.py https://example.com/file.zip -o output.zip
+alter https://example.com/file.zip -o output.zip
 ```
 
 ### Multiple Files
 ```bash
-python3 alter.py https://example.com/file1.zip https://example.com/file2.zip -o file1.zip file2.zip
+alter https://example.com/file1.zip https://example.com/file2.zip -o file1.zip file2.zip
+```
+
+### Launch UI With No URLs
+```bash
+alter
 ```
 
 ## Screenshots
@@ -51,13 +61,12 @@ python3 alter.py https://example.com/file1.zip https://example.com/file2.zip -o 
 
 ## Roadmap
 
-- [ ] Live download management interface
-- [ ] Automatic filename detection
-- [ ] Batch downloads from file
+- [x] Live download management interface with mouse and keyboard intearctions
+- [x] Automatic filename detection from link
 - [ ] Web scraping capabilities
 - [ ] Torrent client integration
-- [ ] Download resume capability
-- [ ] Browser extension integration
+- [x] Download resume capability
+- [ ] Browser extension
 
 ## Contributing
 
