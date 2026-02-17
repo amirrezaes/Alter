@@ -2,12 +2,13 @@
   <img src="/img/logo.png" alt="Alter Logo" width="400">
   <br>
   <b>Alter: Modern terminal download manager.</b>
+  <br>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.11%2B-blue.svg" alt="Python"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
 </p>
 
 # Alter Download Manager
 
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 A high-performance, terminal-based download manager written in Python that focuses on speed and usability.
 
 ## Key Features
