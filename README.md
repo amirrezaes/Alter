@@ -13,6 +13,14 @@ A high-performance, terminal-based download manager written in Python that focus
 - **Resource Efficient**: Optimized for minimal system resource usage
 - **Resume Support**: Continue interrupted downloads from where they left off
 
+## Screenshots
+
+#### Add Download Link
+![Image](/img/Capture1.svg)
+
+#### Downlaod View
+![Image](/img/Capture2.svg)
+
 ## Installation
 
 ### From GitHub Release
@@ -64,14 +72,6 @@ Options:
   -o, --output PATH    Specify output file path(s)
   -h, --help          Show help message
 ```
-
-## Screenshots
-
-### Add Download Link
-![Image](/img/Capture1.svg)
-
-### Downlaod View
-![Image](/img/Capture2.svg)
 
 ## Requirements
 
